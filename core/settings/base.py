@@ -17,6 +17,13 @@ SECRET_KEY = 'django-insecure-$w*v0ru&4&1mbpb_$*wv=)h)5$5@*vs0u^&*xrv5tf177wc=#e
 
 ALLOWED_HOSTS = []
 
+EMAIL_BACKEND='django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'smtp.mailtrap.io'
+EMAIL_HOST_USER = 'hadhdon1@gmail.com'
+EMAIL_HOST_PASSWORD = '2g94f682ms'
+EMAIL_USE_TLS=True
+EMAIL_PORT = '587'
+
 
 # Application definition
 
@@ -26,11 +33,15 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
 
     'port',
     'rest_framework',
+    'corsheaders',
+    'drf_spectacular',
 ]
+
 
 
 REST_FRAMEWORK={
@@ -42,7 +53,8 @@ REST_FRAMEWORK={
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.TokenAuthentication',
         
-    ]
+    ],
+    'DEFAULT_SCHEMA_CLASS':'drf_spectacular.openapi.AutoSchema',
 }
 
 
@@ -50,6 +62,8 @@ REST_FRAMEWORK={
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -127,4 +141,37 @@ MEDIA_ROOT=os.path.join(BASE_DIR,'media')
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage'
+    }
+}
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:8000',
+    'http://localhost:3000',
+    'http://localhost:5500',
+    'http://localhost:5173',
+]
+
+CSRF_TRUSTED_ORIGINS=[
+    'http://localhost:3000',
+    'http://localhost:5500',
+    'http://localhost:5173',
+]
+CORS_ORIGIN_ALLOW_ALL=True
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Profile API',
+    'DESCRIPTION':'Hello its my profile . My name is Ernazar Jumagulov i am Python developmer!',
+    'VERSION':'1.0.0',
+    'SERVE_INCLUDE_SCHEMA':False,
+}
+
+
+SITE_ID=1

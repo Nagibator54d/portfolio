@@ -2,6 +2,11 @@ from rest_framework.generics import GenericAPIView
 from rest_framework import mixins
 from port.models import Profile,Project,Skill,Experience,Education
 from .serializers import ProfileSerializer,ProjectSerializer,SkillSerializer,ExperienceSerializer,EducationSerializer
+from rest_framework.viewsets import ViewSet
+from rest_framework.response import Response
+from rest_framework.status import *
+from django.shortcuts import get_object_or_404
+
 
 class ProfileListView(GenericAPIView,
                       mixins.ListModelMixin,
@@ -196,4 +201,46 @@ class EducationDetailView(GenericAPIView,
     def delete(self,request,*args,**kwargs):
         return self.destroy(request,*args,**kwargs)           
 
+class ProfileViewSet(ViewSet):
 
+    queryset=Profile.objects.all()
+
+    def list(self,request):
+       serializer=ProfileSerializer(self.queryset, many=True)
+
+       return Response(serializer.data, status=HTTP_200_OK)
+
+    def retrieve(self, request, pk=None):
+        profile=get_object_or_404(self.queryset, pk=pk)
+        serializer= ProfileSerializer(profile)
+
+        return Response(serializer.data, status=HTTP_200_OK)
+
+    def create(self,request):
+        serializer=ProfileSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=HTTP_201_CREATED)
+        return Response(serializer.errors,status=HTTP_400_BAD_REQUEST)
+
+    def update(self,request, pk=None):
+        profile=get_object_or_404(self.queryset, pk=pk)
+        serializer=ProfileSerializer(profile, data=request.data, context={'request':request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=HTTP_202_ACCEPTED)
+        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+    def partial_update(self, request, pk=None):
+        profile=get_object_or_404(self.queryset, pk=pk)
+        serializer=ProfileSerializer(profile,data=request.data, partial=True, context={'request':request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=HTTP_202_ACCEPTED)
+        return Response(serializer.errors, status=HTTP_403_FORBIDDEN )
+
+    def destroy(self, request, pk=None):
+        profile=get_object_or_404(self.queryset,pk=pk)
+        profile.delete()
+        return Response(status=HTTP_204_NO_CONTENT)    
+        

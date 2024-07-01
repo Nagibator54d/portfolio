@@ -27,3 +27,8 @@ class EducationForm(forms.ModelForm):
     class Meta:
         model = Education
         fields = ['profile','school', 'degree',  'start_date', 'end_date', 'description']
+
+class ContactForm(forms.ModelForm):
+    name=forms.CharField(max_length=200)
+    email=forms.EmailField()
+    message=forms.CharField(widget=forms.Textarea)
